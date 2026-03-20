@@ -19,7 +19,7 @@ export const auth = {
           emailRedirectTo: `${prefix}/verify`,
         }
       });
-      
+
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
@@ -33,7 +33,7 @@ export const auth = {
         email,
         password,
       });
-      
+
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
@@ -53,14 +53,15 @@ export const auth = {
 
   async resetPassword(email: string) {
     try {
-      // Get your actual Expo URL from the terminal when you run 'npx expo start'
-      const devUrl = 'exp://192.168.1.69:8081'; // Your actual Expo URL
+      // Use the app's deep link scheme for both development and production
+      // In development: exp://localhost:8081
+      // In production: mywallet://
       const siteUrl = isDevelopment
-        ? `${devUrl}/--`
+        ? `${prefix.replace('://', '://')}/--`
         : 'mywallet://';
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/reset-password`
+        redirectTo: `${siteUrl}reset-password`
       });
       if (error) throw error;
       return { error: null };

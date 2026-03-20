@@ -23,7 +23,38 @@
         "backgroundColor": "#1DB954"
       },
       "package": "com.mywallet.app",
-      "allowBackup": false
+      "allowBackup": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "mywallet"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT",
+            "MAIN"
+          ]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "*.supabase.co",
+              "pathPrefix": "/auth/v1/callback"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "scheme": "mywallet",
     "plugins": [
