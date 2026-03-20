@@ -6,8 +6,11 @@ on:
   pull_request:
     branches: [ github-workflow ]
   schedule:
-    - cron: '0 0 * * 0'  # Weekly scan on Sundays
+    - cron: '0 0 * * 0'
   workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Fix Node.js 20 deprecation warnings
 
 jobs:
   trivy-scan:
@@ -15,8 +18,8 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        
+        uses: actions/checkout@v4  # v4 has Node 24 support in latest patch
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -30,8 +33,8 @@ jobs:
         id: parse-results
         run: |
           if [ -f trivy-results.json ]; then
-            CRITICAL=$(cat trivy-results.json | jq '.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL") | .VulnerabilityID' 2>/dev/null | wc -l)
-            HIGH=$(cat trivy-results.json | jq '.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH") | .VulnerabilityID' 2>/dev/null | wc -l)
+            CRITICAL=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length' trivy-results.json 2>/dev/null || echo 0)
+            HIGH=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length' trivy-results.json 2>/dev/null || echo 0)
             echo "critical_count=$CRITICAL" >> $GITHUB_OUTPUT
             echo "high_count=$HIGH" >> $GITHUB_OUTPUT
           else
@@ -46,10 +49,10 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
+          password: ${{ secrets.SMTP_PASSWORD }}  # Must be a Gmail App Password, not your account password
           subject: '[MyWallet] Security Vulnerability Scan Report'
           to: acharya.abiskar7@gmail.com
-          from: MyWallet Security <security@mywallet.app>
+          from: MyWallet Security <${{ secrets.SMTP_USERNAME }}>  # 'from' must match authenticated account
           body: |
             Security vulnerabilities detected in MyWallet repository!
             
