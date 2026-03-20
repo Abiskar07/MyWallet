@@ -2,9 +2,9 @@ name: Security Vulnerability Scan
 
 on:
   push:
-    branches: [ main ]
+    branches: [ github-workflow ]
   pull_request:
-    branches: [ main ]
+    branches: [ github-workflow ]
   schedule:
     - cron: '0 0 * * 0'  # Weekly scan on Sundays
   workflow_dispatch:
