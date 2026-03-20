@@ -3,6 +3,7 @@ import { Loan, CreateLoanDTO } from '../types/loan';
 import * as loanService from '../services/loan';
 import { useAuth } from './AuthContext';
 import { loadFromStorage, saveToStorage } from '../utils/localStorage';
+import { useNetwork } from './NetworkContext';
 
 type LoanContextType = {
   loans: Loan[];
@@ -21,6 +22,7 @@ export function LoanProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { session } = useAuth();
+  const { isOnline, addPendingAction, updateLastSyncTimestamp } = useNetwork();
 
   // Load persisted loans from local storage on mount
   useEffect(() => {
@@ -68,8 +70,22 @@ export function LoanProvider({ children }: { children: React.ReactNode }) {
   }, [session?.user?.id, refreshLoans]);
 
   const create = async (loan: CreateLoanDTO) => {
+    if (!isOnline) {
+      addPendingAction({ type: 'loan', action: 'create', data: loan });
+      const optimisticLoan: Loan = {
+        id: `temp-${Date.now()}`,
+        ...loan,
+        status: 'PENDING',
+        created_at: new Date(),
+        user_id: session?.user?.id || '',
+      } as unknown as Loan;
+      setLoans(prev => [...prev, optimisticLoan]);
+      return;
+    }
+
     const { error } = await loanService.createLoan(loan);
     if (error) throw new Error(error.message);
+    updateLastSyncTimestamp();
     await refreshLoans(true);
   };
 
@@ -80,8 +96,15 @@ export function LoanProvider({ children }: { children: React.ReactNode }) {
   };
 
   const remove = async (id: string) => {
+    if (!isOnline) {
+      addPendingAction({ type: 'loan', action: 'delete', data: { id } });
+      setLoans(prev => prev.filter(l => l.id !== id));
+      return;
+    }
+
     const { error } = await loanService.deleteLoan(id);
     if (error) throw new Error(error.message);
+    updateLastSyncTimestamp();
     await refreshLoans(true);
   };
 

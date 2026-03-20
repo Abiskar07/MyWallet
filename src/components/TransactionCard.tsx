@@ -113,10 +113,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     marginBottom: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
+    backgroundColor: '#16213e',
+    borderRadius: 18, // Slightly softer
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    elevation: 0,
+    overflow: 'hidden',
   },
   cardContent: {
     flexDirection: 'row',
@@ -138,7 +140,9 @@ const styles = StyleSheet.create({
   rightContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 8,
+    justifyContent: 'flex-end',
+    minWidth: 100, // Ensure it fills enough horizontal space
+    paddingRight: 4,
   },
   description: {
     color: '#ffffff',
@@ -152,14 +156,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   amount: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 17,
+    fontWeight: '900',
+    letterSpacing: 0.2,
   },
   incomeAmount: {
-    color: '#1DB954',
+    color: '#22C55E', // High-saturation Green
   },
   expenseAmount: {
-    color: '#FF4444',
+    color: '#EF4444', // High-saturation Red
   },
   menuContent: {
     backgroundColor: '#16213e',

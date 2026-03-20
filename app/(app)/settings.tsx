@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 120, // Increased for Tab Bar overlap
   },
   header: {
     alignItems: 'center',
@@ -328,11 +328,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   sectionSurface: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#16213e',
     borderRadius: 20,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.03)',
+    borderColor: 'rgba(255,255,255,0.08)',
+    elevation: 0,
   },
   listItem: {
     paddingVertical: 4,

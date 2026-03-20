@@ -1,0 +1,80 @@
+name: Security Vulnerability Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly scan on Sundays
+  workflow_dispatch:
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'json'
+          output: 'trivy-results.json'
+          severity: 'CRITICAL,HIGH'
+          
+      - name: Parse Trivy results
+        id: parse-results
+        run: |
+          if [ -f trivy-results.json ]; then
+            CRITICAL=$(cat trivy-results.json | jq '.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL") | .VulnerabilityID' 2>/dev/null | wc -l)
+            HIGH=$(cat trivy-results.json | jq '.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH") | .VulnerabilityID' 2>/dev/null | wc -l)
+            echo "critical_count=$CRITICAL" >> $GITHUB_OUTPUT
+            echo "high_count=$HIGH" >> $GITHUB_OUTPUT
+          else
+            echo "critical_count=0" >> $GITHUB_OUTPUT
+            echo "high_count=0" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Send email notification with CVEs
+        if: steps.parse-results.outputs.critical_count > 0 || steps.parse-results.outputs.high_count > 0
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[MyWallet] Security Vulnerability Scan Report'
+          to: acharya.abiskar7@gmail.com
+          from: MyWallet Security <security@mywallet.app>
+          body: |
+            Security vulnerabilities detected in MyWallet repository!
+            
+            Scan Date: ${{ github.event.repository.updated_at }}
+            Branch: ${{ github.ref }}
+            
+            Summary:
+            - Critical: ${{ steps.parse-results.outputs.critical_count }}
+            - High: ${{ steps.parse-results.outputs.high_count }}
+            
+            Please review the attached results and take immediate action.
+            
+            View full report: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: trivy-results.json
+          secure: true
+          
+      - name: Upload Trivy results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-results
+          path: trivy-results.json
+          retention-days: 30
+          
+      - name: Fail if critical vulnerabilities found
+        if: steps.parse-results.outputs.critical_count > 0
+        run: |
+          echo "Found ${{ steps.parse-results.outputs.critical_count }} critical vulnerabilities!"
+          exit 1

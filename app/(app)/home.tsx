@@ -51,7 +51,7 @@ function Home() {
     }
   }, []);
 
-  const formatBalance = (amount: number) => {
+  const formatBalance = (amount: number, showSign: boolean = false) => {
     const formatted = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'NPR',
@@ -59,7 +59,8 @@ function Home() {
       maximumFractionDigits: 0
     }).format(Math.abs(amount));
     
-    return (amount < 0 ? '-' : '') + formatted.replace('NPR', 'Rs.');
+    const sign = showSign ? (amount >= 0 ? '+ ' : '- ') : (amount < 0 ? '-' : '');
+    return sign + formatted.replace('NPR', 'Rs.');
   };
 
   const handleEditTransaction = (transaction: Transaction) => {
@@ -189,7 +190,11 @@ function Home() {
                   <Text style={styles.balanceLabel}>Current Balance</Text>
                   <MaterialCommunityIcons name="wallet-outline" size={24} color="rgba(255,255,255,0.8)" />
                 </View>
-                <Text style={styles.balanceAmount}>
+                <Text 
+                  style={styles.balanceAmount}
+                  adjustsFontSizeToFit
+                  numberOfLines={1}
+                >
                   {formatBalance(balance)}
                 </Text>
                 <View style={styles.balanceFooter}>
@@ -208,22 +213,22 @@ function Home() {
 
             {/* Quick Summary Section */}
             <View style={styles.summaryGrid}>
-              <Surface style={styles.summaryItem} elevation={1}>
-                <View style={[styles.iconBadge, { backgroundColor: 'rgba(29, 185, 84, 0.15)' }]}>
-                  <MaterialCommunityIcons name="trending-up" size={20} color="#1DB954" />
+              <Surface style={styles.summaryItem} elevation={0}>
+                <View style={[styles.iconBadge, { backgroundColor: 'rgba(34, 197, 94, 0.15)' }]}>
+                  <MaterialCommunityIcons name="trending-up" size={20} color="#22C55E" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.summaryItemLabel}>Income</Text>
-                  <Text style={[styles.summaryItemValue, { color: '#1DB954' }]} numberOfLines={1}>{formatBalance(totalIncome)}</Text>
+                  <Text style={[styles.summaryItemValue, { color: '#22C55E' }]} numberOfLines={1}>{formatBalance(totalIncome, true)}</Text>
                 </View>
               </Surface>
-              <Surface style={styles.summaryItem} elevation={1}>
-                <View style={[styles.iconBadge, { backgroundColor: 'rgba(255, 68, 68, 0.15)' }]}>
-                  <MaterialCommunityIcons name="trending-down" size={20} color="#FF4444" />
+              <Surface style={styles.summaryItem} elevation={0}>
+                <View style={[styles.iconBadge, { backgroundColor: 'rgba(239, 68, 68, 0.15)' }]}>
+                  <MaterialCommunityIcons name="trending-down" size={20} color="#EF4444" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.summaryItemLabel}>Expenses</Text>
-                  <Text style={[styles.summaryItemValue, { color: '#FF4444' }]} numberOfLines={1}>{formatBalance(totalExpense)}</Text>
+                  <Text style={[styles.summaryItemValue, { color: '#EF4444' }]} numberOfLines={1}>{formatBalance(-totalExpense, true)}</Text>
                 </View>
               </Surface>
             </View>
@@ -473,14 +478,14 @@ const styles = StyleSheet.create({
   },
   summaryItem: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 16,
+    backgroundColor: '#16213e', // Solid, no transparency to avoid ghosting
+    borderRadius: 20,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    borderColor: 'rgba(255,255,255,0.15)', // Sharp single border
   },
   iconBadge: {
     width: 36,
@@ -490,14 +495,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   summaryItemLabel: {
-    color: 'rgba(255,255,255,0.5)',
-    fontSize: 11,
-    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 10,
+    fontWeight: '800',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   summaryItemValue: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: '900',
   },
   filterSection: {
     flexDirection: 'row',
@@ -540,18 +546,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 20,
     right: 0,
-    bottom: 0,
+    bottom: Platform.OS === 'ios' ? 88 : 80, // Moved up to avoid Tab Bar overlap
     backgroundColor: '#1DB954',
     borderRadius: 16,
-    elevation: 6,
+    elevation: 10, // Increased elevation for better visibility over glass bar
   },
   modalContent: {
     backgroundColor: '#16213e',
-    padding: 24,
-    margin: 20,
-    borderRadius: 24,
+    padding: 12, // Reduced to allow form internals to breathe
+    margin: 12,  // Reduced to allow full-width view on small phones
+    borderRadius: 32,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.1)',
+    alignSelf: 'center',
+    width: '95%', // Make it take up most of the width
+    maxWidth: 500,
   },
   notifItem: {
     flexDirection: 'row',

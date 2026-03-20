@@ -4,16 +4,12 @@ export const lightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#2563EB',
-    secondary: '#3B82F6',
-    accent: '#60A5FA',
-    background: '#FFFFFF',
-    surface: '#F8FAFC',
-    error: '#EF4444',
-    text: '#1F2937',
-    disabled: '#9CA3AF',
-    placeholder: '#6B7280',
-    backdrop: 'rgba(0, 0, 0, 0.5)',
+    primary: '#1DB954',
+    secondary: '#158a3e',
+    background: '#f8fafc',
+    surface: '#ffffff',
+    error: '#FF4444',
+    onSurface: '#121212',
   },
 };
 
@@ -21,15 +17,16 @@ export const darkTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#3B82F6',
-    secondary: '#60A5FA',
-    accent: '#93C5FD',
-    background: '#1F2937',
-    surface: '#374151',
-    error: '#EF4444',
-    text: '#F9FAFB',
-    disabled: '#6B7280',
-    placeholder: '#9CA3AF',
-    backdrop: 'rgba(0, 0, 0, 0.7)',
+    primary: '#22C55E', // High vibrancy primary
+    secondary: '#1DB954',
+    background: '#1a1a2e',
+    surface: '#16213e',
+    surfaceVariant: 'rgba(255, 255, 255, 0.1)', // Increased for better card separation
+    onSurface: '#FFFFFF', // Pure white for primary text
+    onSurfaceVariant: '#f9fafb', // Near white for labels/titles
+    outline: 'rgba(255, 255, 255, 0.2)', // Sharper outlines
+    error: '#EF4444', 
+    placeholder: 'rgba(255, 255, 255, 0.5)',
   },
-}; 
+  roundness: 16,
+};

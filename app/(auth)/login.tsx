@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Text as RNText } from 'react-native';
 import { Text, Button, TextInput, useTheme, Snackbar, Surface, Divider } from 'react-native-paper';
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
@@ -44,7 +44,7 @@ export default function Login() {
 
   return (
     <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.gradient}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -55,39 +55,43 @@ export default function Login() {
           <Text style={styles.appName}>MyWallet</Text>
           <Text style={styles.tagline}>Track your finances with ease</Text>
         </View>
-        
+
         <Surface style={styles.formCard} elevation={5}>
           <Text style={styles.welcomeText}>Welcome Back</Text>
-          
+
+          <View style={styles.labelContainer}>
+            <RNText style={styles.label}>Email</RNText>
+          </View>
           <TextInput
-            label="Email"
             value={email}
             onChangeText={setEmail}
             mode="outlined"
             keyboardType="email-address"
             autoCapitalize="none"
-            style={styles.input}
+            style={[styles.input, styles.inputBg]}
             disabled={loading}
-            left={<TextInput.Icon icon="email-outline" />}
             outlineStyle={styles.inputOutline}
             outlineColor="rgba(255,255,255,0.15)"
             activeOutlineColor="#1DB954"
             textColor="#fff"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            theme={{ colors: { background: 'transparent' } }}
+            placeholder="Enter your email"
           />
-          
+
+          <View style={styles.labelContainer}>
+            <RNText style={styles.label}>Password</RNText>
+          </View>
           <TextInput
-            label="Password"
             value={password}
             onChangeText={setPassword}
             mode="outlined"
             secureTextEntry={!showPassword}
-            style={styles.input}
+            style={[styles.input, styles.inputBg]}
             disabled={loading}
-            left={<TextInput.Icon icon="lock-outline" />}
             right={
-              <TextInput.Icon 
-                icon={showPassword ? "eye-off" : "eye"} 
+              <TextInput.Icon
+                icon={showPassword ? "eye-off" : "eye"}
                 onPress={() => setShowPassword(!showPassword)}
               />
             }
@@ -95,12 +99,14 @@ export default function Login() {
             outlineColor="rgba(255,255,255,0.15)"
             activeOutlineColor="#1DB954"
             textColor="#fff"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            theme={{ colors: { background: 'transparent' } }}
+            placeholder="Enter your password"
           />
-          
-          <Button 
-            mode="contained" 
-            onPress={handleLogin} 
+
+          <Button
+            mode="contained"
+            onPress={handleLogin}
             style={styles.loginButton}
             labelStyle={styles.loginButtonLabel}
             loading={loading}
@@ -110,8 +116,8 @@ export default function Login() {
             Sign In
           </Button>
 
-          <Button 
-            mode="text" 
+          <Button
+            mode="text"
             onPress={() => router.push('/(auth)/forgot-password')}
             disabled={loading}
             style={styles.forgotButton}
@@ -126,10 +132,10 @@ export default function Login() {
             <Divider style={styles.divider} />
           </View>
 
-          <Button 
-            mode="outlined" 
+          <Button
+            mode="outlined"
             icon="google"
-            onPress={signInWithGoogle} 
+            onPress={signInWithGoogle}
             style={styles.googleButton}
             labelStyle={styles.googleButtonLabel}
             disabled={loading}
@@ -138,7 +144,7 @@ export default function Login() {
             Continue with Google
           </Button>
         </Surface>
-        
+
         <View style={styles.signupContainer}>
           <Text style={styles.signupText}>Don't have an account? </Text>
           <Link href="/(auth)/register" asChild>
@@ -177,44 +183,47 @@ const styles = StyleSheet.create({
   },
   headerSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 40,
   },
   logoCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 80,
+    height: 80,
+    borderRadius: 24,
     backgroundColor: '#1DB954',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+    // Add a glow effect
     shadowColor: '#1DB954',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 15,
+    elevation: 12,
   },
   logoText: {
     color: '#fff',
-    fontSize: 28,
-    fontWeight: '800',
+    fontSize: 32,
+    fontWeight: '900',
   },
   appName: {
-    fontSize: 32,
-    fontWeight: '800',
+    fontSize: 36,
+    fontWeight: '900',
     color: '#fff',
-    letterSpacing: 1,
+    letterSpacing: -0.5,
   },
   tagline: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.6)',
     marginTop: 4,
+    fontWeight: '500',
   },
   formCard: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 24,
-    padding: 24,
+    backgroundColor: '#16213e',
+    borderRadius: 32,
+    padding: 28,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.1)',
+    elevation: 0,
   },
   welcomeText: {
     fontSize: 22,
@@ -224,8 +233,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   input: {
-    marginBottom: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    marginBottom: 20,
+    height: 56,
+  },
+  inputBg: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  labelContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  label: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputOutline: {
     borderRadius: 14,
@@ -255,13 +283,15 @@ const styles = StyleSheet.create({
   },
   divider: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    height: 1,
   },
   dividerText: {
-    color: 'rgba(255,255,255,0.4)',
+    color: 'rgba(255,255,255,0.3)',
     marginHorizontal: 16,
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1,
   },
   googleButton: {
     borderColor: 'rgba(255,255,255,0.15)',

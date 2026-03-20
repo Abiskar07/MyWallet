@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView, Platform, Text as RNText } from 'react-native';
 import { TextInput, Button, Text, Card, SegmentedButtons, HelperText, IconButton } from 'react-native-paper';
 import { useLoans } from '../../context/LoanContext';
 import { CreateLoanDTO } from '../../types/loan';
@@ -77,7 +77,7 @@ const AddLoanForm: React.FC<AddLoanFormProps> = ({ onClose }) => {
 
   const renderNativeDatePicker = () => {
     if (Platform.OS === 'web' || !showDatePicker) return null;
-    
+
     // Dynamic import for native only
     const DateTimePicker = require('@react-native-community/datetimepicker').default;
     return (
@@ -107,200 +107,236 @@ const AddLoanForm: React.FC<AddLoanFormProps> = ({ onClose }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.title}>
-            {type === 'BORROWED' ? '💸' : '🤝'} Add New Loan
-          </Text>
+      <View style={[
+        styles.formContent,
+        { borderColor: type === 'BORROWED' ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)' }
+      ]}>
+        <Text style={[
+          styles.title,
+          { color: type === 'BORROWED' ? '#EF4444' : '#22C55E' }
+        ]}>
+          {type === 'BORROWED' ? 'I Borrowed' : 'I Lent'}
+        </Text>
 
-          <SegmentedButtons
-            value={type}
-            onValueChange={(value) => setType(value as 'BORROWED' | 'LENT')}
-            buttons={[
-              { 
-                value: 'BORROWED', 
-                label: '💸 Borrowed',
-                style: type === 'BORROWED' ? styles.activeSegmentBorrowed : undefined,
-              },
-              { 
-                value: 'LENT', 
-                label: '🤝 Lent',
-                style: type === 'LENT' ? styles.activeSegmentLent : undefined,
-              },
-            ]}
-            style={styles.segment}
-          />
+        <SegmentedButtons
+          value={type}
+          onValueChange={(value) => setType(value as 'BORROWED' | 'LENT')}
+          buttons={[
+            {
+              value: 'BORROWED',
+              label: 'Borrowed',
+              style: type === 'BORROWED' ? styles.activeSegmentBorrowed : undefined,
+            },
+            {
+              value: 'LENT',
+              label: 'Lent',
+              style: type === 'LENT' ? styles.activeSegmentLent : undefined,
+            },
+          ]}
+          style={styles.segment}
+        />
 
-          <TextInput
-            mode="outlined"
-            label="Amount (रू)"
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="numeric"
-            style={styles.input}
-            error={!!errors.amount}
-            left={
-              <TextInput.Icon
-                icon={() => (
-                  <Text style={{ color: '#a1a1a1', fontSize: 20 }}>रू</Text>
-                )}
-              />
+        <View style={styles.labelContainer}>
+          <RNText style={styles.label}>Amount</RNText>
+        </View>
+        <TextInput
+          mode="outlined"
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+          style={[styles.input, styles.inputBg]}
+          error={!!errors.amount}
+          textColor={Colors.text}
+          placeholderTextColor={Colors.placeholder}
+          outlineColor="rgba(255,255,255,0.15)"
+          activeOutlineColor={type === 'BORROWED' ? '#EF4444' : '#22C55E'}
+          theme={{
+            colors: {
+              background: 'transparent',
+              onSurfaceVariant: 'rgba(255,255,255,0.5)'
             }
-            placeholder="Enter amount"
-            placeholderTextColor="#a1a1a1"
-            outlineStyle={styles.inputOutline}
-          />
-          <HelperText type="error" visible={!!errors.amount}>
-            {errors.amount}
-          </HelperText>
+          }}
+          placeholder="0.00"
+          outlineStyle={styles.inputOutline}
+        />
+        <HelperText type="error" visible={!!errors.amount}>
+          {errors.amount}
+        </HelperText>
 
-          <TextInput
-            mode="outlined"
-            label="Name"
-            value={name}
-            onChangeText={setName}
-            style={styles.input}
-            error={!!errors.name}
-            left={<TextInput.Icon icon="account" />}
-            placeholder="Who is this loan with?"
-            placeholderTextColor="#a1a1a1"
-            outlineStyle={styles.inputOutline}
-          />
-          <HelperText type="error" visible={!!errors.name}>
-            {errors.name}
-          </HelperText>
+        <View style={styles.labelContainer}>
+          <RNText style={styles.label}>Name</RNText>
+        </View>
+        <TextInput
+          mode="outlined"
+          value={name}
+          onChangeText={setName}
+          style={[styles.input, styles.inputBg]}
+          error={!!errors.name}
+          textColor={Colors.text}
+          placeholderTextColor={Colors.placeholder}
+          outlineColor="rgba(255,255,255,0.15)"
+          activeOutlineColor={type === 'BORROWED' ? '#EF4444' : '#22C55E'}
+          theme={{ colors: { background: 'transparent' } }}
+          placeholder="Enter person name"
+          outlineStyle={styles.inputOutline}
+        />
+        <HelperText type="error" visible={!!errors.name}>
+          {errors.name}
+        </HelperText>
 
-          <TextInput
-            mode="outlined"
-            label="Description (Optional)"
-            value={description}
-            onChangeText={setDescription}
-            style={styles.input}
-            multiline
-            numberOfLines={2}
-            left={<TextInput.Icon icon="note-text" />}
-            placeholder="What is this loan for?"
-            placeholderTextColor="#a1a1a1"
-            outlineStyle={styles.inputOutline}
-          />
+        <View style={styles.labelContainer}>
+          <RNText style={styles.label}>Description <RNText style={styles.labelOptional}>(Optional)</RNText></RNText>
+        </View>
+        <TextInput
+          mode="outlined"
+          value={description}
+          onChangeText={setDescription}
+          style={[styles.input, styles.inputBg]}
+          multiline
+          numberOfLines={2}
+          textColor={Colors.text}
+          placeholderTextColor={Colors.placeholder}
+          outlineColor="rgba(255,255,255,0.15)"
+          activeOutlineColor={type === 'BORROWED' ? '#EF4444' : '#22C55E'}
+          theme={{ colors: { background: 'transparent' } }}
+          placeholder="Reason for loan..."
+          outlineStyle={styles.inputOutline}
+        />
 
-          {/* Due Date Section */}
-          <View style={styles.dateSection}>
-            <Button
-              mode={dueDate ? 'contained' : 'outlined'}
-              onPress={handleDateChange}
-              style={[styles.dateButton, dueDate && styles.dateButtonActive]}
-              icon="calendar"
-              labelStyle={dueDate ? styles.dateButtonLabelActive : undefined}
-              contentStyle={styles.dateButtonContent}
-            >
-              {dueDate ? formatDate(dueDate) : 'Set Due Date'}
-            </Button>
-            {dueDate && (
-              <IconButton
-                icon="close-circle"
-                size={20}
-                onPress={() => setDueDate(null)}
-                iconColor="#FF4444"
-                style={styles.clearDateButton}
-              />
-            )}
-          </View>
-
-          {renderNativeDatePicker()}
-
-          {errors.submit && (
-            <Text style={styles.errorText}>{errors.submit}</Text>
+        {/* Due Date Section */}
+        <View style={styles.dateSection}>
+          <Button
+            mode={dueDate ? 'contained' : 'outlined'}
+            onPress={handleDateChange}
+            style={[styles.dateButton, dueDate && styles.dateButtonActive]}
+            labelStyle={dueDate ? styles.dateButtonLabelActive : undefined}
+            contentStyle={styles.dateButtonContent}
+          >
+            {dueDate ? formatDate(dueDate) : 'Set Due Date'}
+          </Button>
+          {dueDate && (
+            <IconButton
+              icon="close-circle"
+              size={20}
+              onPress={() => setDueDate(null)}
+              iconColor="#FF4444"
+              style={styles.clearDateButton}
+            />
           )}
+        </View>
 
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="contained"
-              onPress={handleSubmit}
-              loading={isSubmitting}
-              disabled={isSubmitting}
-              style={[styles.button, styles.saveButton]}
-              labelStyle={styles.saveButtonLabel}
-              icon="check"
-            >
-              Save
-            </Button>
-            <Button 
-              mode="outlined" 
-              onPress={onClose} 
-              style={[styles.button, styles.cancelButton]}
-              icon="close"
-            >
-              Cancel
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
+        {renderNativeDatePicker()}
+
+        {errors.submit && (
+          <Text style={styles.errorText}>{errors.submit}</Text>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="contained"
+            onPress={handleSubmit}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+            style={[styles.button, styles.saveButton]}
+            labelStyle={styles.saveButtonLabel}
+          >
+            Save Loan
+          </Button>
+          <Button
+            mode="outlined"
+            onPress={onClose}
+            style={[styles.button, styles.cancelButton]}
+          >
+            Cancel
+          </Button>
+        </View>
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: Spacing.medium,
+    padding: 12,
   },
-  card: {
-    margin: Spacing.small,
-    borderRadius: 20,
-    padding: Spacing.large,
-    backgroundColor: Colors.card,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 12,
+  formContent: {
     width: '100%',
-    maxWidth: 500,
-    alignSelf: 'center',
+    padding: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   title: {
-    marginBottom: Spacing.medium,
+    marginBottom: 20,
     textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.text,
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: 0.5,
   },
   segment: {
-    marginBottom: Spacing.medium,
+    marginBottom: 20,
   },
   activeSegmentBorrowed: {
-    backgroundColor: 'rgba(255, 68, 68, 0.2)',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
   },
   activeSegmentLent: {
-    backgroundColor: 'rgba(29, 185, 84, 0.2)',
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
   },
   input: {
-    marginBottom: 4,
-    backgroundColor: Colors.input,
+    marginBottom: 16,
+    height: 56,
     fontSize: 16,
+  },
+  inputBg: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  labelContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  label: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  labelOptional: {
+    color: 'rgba(255,255,255,0.4)',
+    fontWeight: '400',
+    textTransform: 'none',
   },
   inputOutline: {
     borderRadius: 12,
+    borderWidth: 1,
   },
   dateSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: Spacing.medium,
+    marginVertical: 12,
   },
   dateButton: {
     flex: 1,
     borderRadius: 12,
+    height: 50,
+    justifyContent: 'center',
   },
   dateButtonActive: {
-    backgroundColor: 'rgba(29, 185, 84, 0.15)',
-    borderColor: '#1DB954',
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    borderColor: '#22C55E',
   },
   dateButtonContent: {
-    paddingVertical: 6,
+    paddingVertical: 4,
   },
   dateButtonLabelActive: {
-    color: '#1DB954',
-    fontWeight: '600',
+    color: '#22C55E',
+    fontWeight: '700',
   },
   clearDateButton: {
     marginLeft: 4,
@@ -308,29 +344,32 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: Spacing.large,
+    marginTop: 24,
     gap: 12,
   },
   button: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 14,
+    height: 50,
+    justifyContent: 'center',
   },
   saveButton: {
-    backgroundColor: '#1DB954',
-    paddingVertical: 4,
+    backgroundColor: '#22C55E',
   },
   saveButtonLabel: {
-    fontWeight: '700',
+    fontWeight: '800',
     fontSize: 16,
+    color: '#fff',
   },
   cancelButton: {
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(255,255,255,0.15)',
   },
   errorText: {
-    color: Colors.error,
-    marginTop: Spacing.small,
+    color: '#FF6B6B',
+    marginTop: 8,
     textAlign: 'center',
     fontSize: 14,
+    fontWeight: '600',
   },
 });
 

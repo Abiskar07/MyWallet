@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Text as RNText } from 'react-native';
 import { Text, Button, TextInput, useTheme, Snackbar, Surface, Divider } from 'react-native-paper';
 import { Link, router } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
@@ -49,7 +49,7 @@ export default function Register() {
 
   return (
     <LinearGradient colors={['#1a1a2e', '#16213e', '#0f3460']} style={styles.gradient}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
@@ -59,35 +59,39 @@ export default function Register() {
         </View>
 
         <Surface style={styles.formCard} elevation={5}>
+          <View style={styles.labelContainer}>
+            <RNText style={styles.label}>Email</RNText>
+          </View>
           <TextInput
-            label="Email"
             value={email}
             onChangeText={setEmail}
             mode="outlined"
             keyboardType="email-address"
             autoCapitalize="none"
-            style={styles.input}
+            style={[styles.input, styles.inputBg]}
             disabled={loading}
-            left={<TextInput.Icon icon="email-outline" />}
             outlineStyle={styles.inputOutline}
             outlineColor="rgba(255,255,255,0.15)"
             activeOutlineColor="#1DB954"
             textColor="#fff"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            theme={{ colors: { background: 'transparent' } }}
+            placeholder="Enter your email"
           />
-          
+
+          <View style={styles.labelContainer}>
+            <RNText style={styles.label}>Password</RNText>
+          </View>
           <TextInput
-            label="Password"
             value={password}
             onChangeText={setPassword}
             mode="outlined"
             secureTextEntry={!showPassword}
-            style={styles.input}
+            style={[styles.input, styles.inputBg]}
             disabled={loading}
-            left={<TextInput.Icon icon="lock-outline" />}
             right={
-              <TextInput.Icon 
-                icon={showPassword ? "eye-off" : "eye"} 
+              <TextInput.Icon
+                icon={showPassword ? "eye-off" : "eye"}
                 onPress={() => setShowPassword(!showPassword)}
               />
             }
@@ -95,27 +99,32 @@ export default function Register() {
             outlineColor="rgba(255,255,255,0.15)"
             activeOutlineColor="#1DB954"
             textColor="#fff"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            theme={{ colors: { background: 'transparent' } }}
+            placeholder="Create a password"
           />
 
+          <View style={styles.labelContainer}>
+            <RNText style={styles.label}>Confirm Password</RNText>
+          </View>
           <TextInput
-            label="Confirm Password"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             mode="outlined"
             secureTextEntry={!showPassword}
-            style={styles.input}
+            style={[styles.input, styles.inputBg]}
             disabled={loading}
-            left={<TextInput.Icon icon="lock-check" />}
             outlineStyle={styles.inputOutline}
             outlineColor="rgba(255,255,255,0.15)"
             activeOutlineColor="#1DB954"
             textColor="#fff"
-            theme={{ colors: { onSurfaceVariant: '#888' } }}
+            placeholderTextColor="rgba(255,255,255,0.4)"
+            theme={{ colors: { background: 'transparent' } }}
+            placeholder="Confirm your password"
           />
-          
-          <Button 
-            mode="contained" 
+
+          <Button
+            mode="contained"
             onPress={handleRegister}
             style={styles.registerButton}
             labelStyle={styles.registerButtonLabel}
@@ -132,10 +141,10 @@ export default function Register() {
             <Divider style={styles.divider} />
           </View>
 
-          <Button 
-            mode="outlined" 
+          <Button
+            mode="outlined"
             icon="google"
-            onPress={signInWithGoogle} 
+            onPress={signInWithGoogle}
             style={styles.googleButton}
             labelStyle={styles.googleButtonLabel}
             disabled={loading}
@@ -144,7 +153,7 @@ export default function Register() {
             Sign up with Google
           </Button>
         </Surface>
-        
+
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>Already have an account? </Text>
           <Link href="/(auth)/login" asChild>
@@ -183,29 +192,50 @@ const styles = StyleSheet.create({
   },
   headerSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 40,
   },
   headerTitle: {
-    fontSize: 30,
-    fontWeight: '800',
+    fontSize: 36,
+    fontWeight: '900',
     color: '#fff',
-    letterSpacing: 0.5,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.5)',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.6)',
     marginTop: 6,
+    fontWeight: '500',
   },
   formCard: {
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    borderRadius: 24,
-    padding: 24,
+    backgroundColor: '#16213e',
+    borderRadius: 32,
+    padding: 28,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)',
+    borderColor: 'rgba(255,255,255,0.1)',
+    elevation: 0,
   },
   input: {
-    marginBottom: 14,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    marginBottom: 20,
+    height: 56,
+  },
+  inputBg: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  labelContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  label: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputOutline: {
     borderRadius: 14,

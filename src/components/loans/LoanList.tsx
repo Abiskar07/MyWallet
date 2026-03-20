@@ -32,22 +32,23 @@ export default function LoanList({ type }: Props) {
     }
   };
 
-  const formatAmount = (amount: number) => {
+  const formatAmount = (amount: number, showSign: boolean = false) => {
     const formatted = new Intl.NumberFormat('en-NP', {
       style: 'currency',
       currency: 'NPR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(amount);
+    }).format(Math.abs(amount));
     
-    return formatted.replace('NPR', 'Rs.');
+    const sign = showSign ? (type === 'BORROWED' ? '- ' : '+ ') : '';
+    return sign + formatted.replace('NPR', 'Rs.');
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'PAID': return '#1DB954';
-      case 'OVERDUE': return '#FF4444';
-      default: return '#FFA000';
+      case 'PAID': return '#22C55E';
+      case 'OVERDUE': return '#EF4444';
+      default: return '#EAB308'; // Vibrant Amber
     }
   };
 
@@ -68,13 +69,13 @@ export default function LoanList({ type }: Props) {
         </Surface>
       ) : (
         filteredLoans.map(loan => (
-          <Surface key={loan.id} style={styles.loanCard} elevation={1}>
+          <Surface key={loan.id} style={styles.loanCard} elevation={0}>
             <View style={styles.cardMain}>
               <View style={[styles.avatar, { backgroundColor: type === 'BORROWED' ? 'rgba(255, 68, 68, 0.1)' : 'rgba(29, 185, 84, 0.1)' }]}>
                 <MaterialCommunityIcons 
                   name={type === 'BORROWED' ? 'arrow-down-left' : 'arrow-up-right'} 
                   size={24} 
-                  color={type === 'BORROWED' ? '#FF4444' : '#1DB954'} 
+                  color={type === 'BORROWED' ? '#EF4444' : '#22C55E'} 
                 />
               </View>
               
@@ -94,8 +95,8 @@ export default function LoanList({ type }: Props) {
               </View>
 
               <View style={styles.rightAction}>
-                <Text style={[styles.amount, { color: type === 'BORROWED' ? '#FF4444' : '#1DB954' }]}>
-                  {formatAmount(loan.amount)}
+                <Text style={[styles.amount, { color: type === 'BORROWED' ? '#EF4444' : '#22C55E' }]}>
+                  {formatAmount(loan.amount, true)}
                 </Text>
                 <Menu
                   visible={menuVisible === loan.id}
@@ -164,20 +165,26 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
+    gap: 12,
+    marginBottom: 16,
+    marginTop: 24, // Consistent spacing
+    borderTopWidth: 1, 
+    borderTopColor: 'rgba(255,255,255,0.08)',
+    minHeight: 44, // Ensures text doesn't clip or overlap
+    width: '100%',
   },
   title: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    fontWeight: '900', 
+    color: 'rgba(255,255,255,0.8)',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    textAlignVertical: 'center', // Essential for Android vertical centering
   },
   countBadge: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 8,
-    paddingHorizontal: 8,
+    backgroundColor: 'rgba(29, 185, 84, 0.2)', // Use primary green for count
+    borderRadius: 6,
+    paddingHorizontal: 10,
     paddingVertical: 2,
   },
   countText: {
@@ -201,9 +208,9 @@ const styles = StyleSheet.create({
   loanCard: {
     marginBottom: 10,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: '#16213e',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.03)',
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   cardMain: {
     flexDirection: 'row',

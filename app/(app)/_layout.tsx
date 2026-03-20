@@ -11,22 +11,33 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarBackground: () => (
+          <BlurView 
+            intensity={Platform.OS === 'ios' ? 80 : 100} 
+            tint="dark" 
+            style={StyleSheet.absoluteFill} 
+          />
+        ),
         tabBarStyle: {
-          backgroundColor: '#1a1a2e',
-          borderTopColor: 'rgba(255,255,255,0.05)',
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(26, 26, 46, 0.95)',
+          borderTopColor: 'rgba(255,255,255,0.1)',
           paddingBottom: Platform.OS === 'ios' ? 24 : 12,
           paddingTop: 12,
-          height: Platform.OS === 'ios' ? 88 : 68,
+          height: Platform.OS === 'ios' ? 88 : 72,
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
           elevation: 0,
         },
         tabBarActiveTintColor: '#1DB954',
         tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '700',
+          fontSize: 10,
+          fontWeight: '800',
           marginTop: 4,
           textTransform: 'uppercase',
-          letterSpacing: 0.5,
+          letterSpacing: 1,
         },
       }}
     >

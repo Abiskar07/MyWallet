@@ -3,6 +3,7 @@ import { Transaction, CreateTransactionDTO, UpdateTransactionDTO, transactionSer
 import { useAuth } from './AuthContext'; // Import auth context to get user info
 import { supabase } from '../services/supabase';
 import { loadFromStorage, saveToStorage } from '../utils/localStorage';
+import { useNetwork } from './NetworkContext';
 
 interface TransactionContextData {
   transactions: Transaction[];
@@ -21,6 +22,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const [isLoading, setIsLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<number>(0);
   const { session } = useAuth();
+  const { isOnline, addPendingAction, updateLastSyncTimestamp } = useNetwork();
 
   // Load persisted transactions from local storage on mount
   useEffect(() => {
@@ -60,8 +62,12 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         setTransactions(result.data);
         setLastRefresh(now);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to refresh transactions:', error);
+      // Optional: you could set a global error state here to show a "Network Error" banner
+      if (error?.message?.includes('Network') || error?.message?.includes('fetch')) {
+        // Handle network specific errors
+      }
     } finally {
       setIsLoading(false);
     }
@@ -93,27 +99,54 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const createTransaction = async (data: CreateTransactionDTO) => {
     try {
+      if (!isOnline) {
+        // Queue for later sync
+        addPendingAction({ type: 'transaction', action: 'create', data });
+        // Optimistically add to local state
+        const optimisticTransaction = {
+          id: `temp-${Date.now()}`,
+          ...data,
+          created_at: new Date().toISOString(),
+          updated_at: new Date(),
+          user_id: session?.user?.id || '',
+        } as unknown as Transaction;
+        setTransactions(prev => [optimisticTransaction, ...prev]);
+        return {};
+      }
+
       const result = await transactionService.createTransaction(data);
       if (result.data) {
         setTransactions(prev => [result.data!, ...prev]);
+        updateLastSyncTimestamp();
         return {};
       }
       return { error: { message: 'Failed to create transaction' } };
     } catch (error) {
-      return { error: { message: 'Failed to create transaction' } };
+      // Queue for retry if online becomes available
+      addPendingAction({ type: 'transaction', action: 'create', data });
+      return {};
     }
   };
 
   const deleteTransaction = async (id: string) => {
     try {
+      if (!isOnline) {
+        addPendingAction({ type: 'transaction', action: 'delete', data: { id } });
+        setTransactions(prev => prev.filter(t => t.id !== id));
+        return {};
+      }
+
       const result = await transactionService.deleteTransaction(id);
       if (!result.error) {
         setTransactions(prev => prev.filter(t => t.id !== id));
+        updateLastSyncTimestamp();
         return {};
       }
       return { error: { message: 'Failed to delete transaction' } };
     } catch (error) {
-      return { error: { message: 'Failed to delete transaction' } };
+      addPendingAction({ type: 'transaction', action: 'delete', data: { id } });
+      setTransactions(prev => prev.filter(t => t.id !== id));
+      return {};
     }
   };
 
@@ -121,7 +154,7 @@ export const TransactionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     try {
       const result = await transactionService.updateTransaction(data);
       if (result.data) {
-        setTransactions(prev => 
+        setTransactions(prev =>
           prev.map(t => t.id === data.id ? result.data! : t)
         );
         return {};

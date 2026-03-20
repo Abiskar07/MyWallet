@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Text as RNText } from 'react-native';
 import { TextInput, Button, SegmentedButtons, Text, Card, HelperText } from 'react-native-paper';
 import { CreateTransactionDTO, Transaction, TransactionType } from '../services/transaction';
 import { Colors, Spacing } from "../theme";
@@ -58,149 +58,188 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
   return (
     <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text style={styles.title}>
-            {initialData ? '✏️ Edit Transaction' : '🆕 New Transaction'}
-          </Text>
+      <View style={[
+        styles.formContent,
+        { borderColor: type === 'EXPENSE' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)' }
+      ]}>
+        <Text style={[
+          styles.title,
+          { color: type === 'EXPENSE' ? '#EF4444' : '#22C55E' }
+        ]}>
+          {type === 'EXPENSE' ? 'New Expense' : 'New Income'}
+        </Text>
 
-          <SegmentedButtons
-            value={type}
-            onValueChange={value => setType(value as TransactionType)}
-            buttons={[
-              { 
-                value: 'EXPENSE', 
-                label: '💸 Expense',
-                style: type === 'EXPENSE' ? styles.activeSegmentExpense : undefined,
-              },
-              { 
-                value: 'INCOME', 
-                label: '💰 Income',
-                style: type === 'INCOME' ? styles.activeSegmentIncome : undefined,
-              },
-            ]}
-            style={styles.segment}
-          />
+        <SegmentedButtons
+          value={type}
+          onValueChange={value => setType(value as TransactionType)}
+          buttons={[
+            {
+              value: 'EXPENSE',
+              label: 'Expense',
+              style: type === 'EXPENSE' ? styles.activeSegmentExpense : undefined,
+            },
+            {
+              value: 'INCOME',
+              label: 'Income',
+              style: type === 'INCOME' ? styles.activeSegmentIncome : undefined,
+            },
+          ]}
+          style={styles.segment}
+        />
 
-          <TextInput
-            mode="outlined"
-            label="Amount (रू)"
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="numeric"
-            style={styles.input}
-            error={!!errors.amount}
-            left={
-              <TextInput.Icon
-                icon={() => (
-                  <Text style={{ color: '#a1a1a1', fontSize: 20 }}>रू</Text>
-                )}
-              />
+        <View style={styles.labelContainer}>
+          <Text style={styles.label}>Amount</Text>
+        </View>
+        <TextInput
+          mode="outlined"
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="numeric"
+          style={[styles.input, styles.inputBg]}
+          error={!!errors.amount}
+          textColor={Colors.text}
+          placeholderTextColor={Colors.placeholder}
+          outlineColor="rgba(255,255,255,0.15)"
+          activeOutlineColor={type === 'EXPENSE' ? '#EF4444' : '#22C55E'}
+          theme={{
+            colors: {
+              background: 'transparent',
+              onSurfaceVariant: 'rgba(255,255,255,0.5)'
             }
-            placeholder="Enter amount"
-            placeholderTextColor="#a1a1a1"
-            outlineStyle={styles.inputOutline}
-          />
-          <HelperText type="error" visible={!!errors.amount}>
-            {errors.amount}
-          </HelperText>
+          }}
+          placeholder="0.00"
+          outlineStyle={styles.inputOutline}
+        />
+        <HelperText type="error" visible={!!errors.amount}>
+          {errors.amount}
+        </HelperText>
 
-          <TextInput
+        <View style={styles.labelContainer}>
+          <Text style={styles.label}>Description</Text>
+        </View>
+        <TextInput
+          mode="outlined"
+          value={description}
+          onChangeText={setDescription}
+          style={[styles.input, styles.inputBg]}
+          error={!!errors.description}
+          textColor={Colors.text}
+          placeholderTextColor={Colors.placeholder}
+          outlineColor="rgba(255,255,255,0.15)"
+          activeOutlineColor={type === 'EXPENSE' ? '#EF4444' : '#22C55E'}
+          theme={{
+            colors: {
+              background: 'transparent'
+            }
+          }}
+          placeholder="e.g., Grocery, Salary, Rent..."
+          outlineStyle={styles.inputOutline}
+        />
+        <HelperText type="error" visible={!!errors.description}>
+          {errors.description}
+        </HelperText>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            mode="contained"
+            onPress={handleSubmit}
+            loading={isLoading}
+            disabled={isLoading}
+            style={[styles.button, styles.saveButton]}
+            labelStyle={styles.saveButtonLabel}
+          >
+            {initialData ? 'Update' : 'Save Transaction'}
+          </Button>
+          <Button
             mode="outlined"
-            label="Description"
-            value={description}
-            onChangeText={setDescription}
-            style={styles.input}
-            error={!!errors.description}
-            left={<TextInput.Icon icon="text" />}
-            placeholder="What was this for?"
-            placeholderTextColor="#a1a1a1"
-            outlineStyle={styles.inputOutline}
-          />
-          <HelperText type="error" visible={!!errors.description}>
-            {errors.description}
-          </HelperText>
-
-          <View style={styles.buttonContainer}>
-            <Button
-              mode="contained"
-              onPress={handleSubmit}
-              loading={isLoading}
-              disabled={isLoading}
-              style={[styles.button, styles.saveButton]}
-              labelStyle={styles.saveButtonLabel}
-              icon="check"
-            >
-              {initialData ? 'Update' : 'Save'}
-            </Button>
-            <Button 
-              mode="outlined" 
-              onPress={onCancel} 
-              style={[styles.button, styles.cancelButton]}
-              icon="close"
-            >
-              Cancel
-            </Button>
-          </View>
-        </Card.Content>
-      </Card>
+            onPress={onCancel}
+            style={[styles.button, styles.cancelButton]}
+          >
+            Cancel
+          </Button>
+        </View>
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    padding: Spacing.medium,
+    padding: 12, // Reduced padding to give content more room
   },
-  card: {
-    borderRadius: 20,
-    backgroundColor: Colors.card,
+  formContent: {
     width: '100%',
-    alignSelf: 'center',
+    padding: 16,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)',
   },
   title: {
-    marginBottom: Spacing.medium,
+    marginBottom: 20,
     textAlign: 'center',
-    fontSize: 24,
-    fontWeight: '700',
-    color: Colors.text,
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#fff',
+    letterSpacing: 0.5,
   },
   segment: {
-    marginBottom: Spacing.medium,
+    marginBottom: 20,
   },
   activeSegmentExpense: {
-    backgroundColor: 'rgba(255, 68, 68, 0.2)',
+    backgroundColor: 'rgba(239, 68, 68, 0.2)',
   },
   activeSegmentIncome: {
-    backgroundColor: 'rgba(29, 185, 84, 0.2)',
+    backgroundColor: 'rgba(34, 197, 94, 0.2)',
   },
   input: {
-    marginBottom: 4,
-    backgroundColor: Colors.input,
+    marginBottom: 16,
+    height: 56,
     fontSize: 16,
+  },
+  inputBg: {
+    backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  labelContainer: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  label: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   inputOutline: {
     borderRadius: 12,
+    borderWidth: 1,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: Spacing.large,
+    marginTop: 24,
     gap: 12,
   },
   button: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: 14,
+    height: 50,
+    justifyContent: 'center',
   },
   saveButton: {
-    backgroundColor: '#1DB954',
-    paddingVertical: 4,
+    backgroundColor: '#22C55E', // Use high-vibrancy Green
   },
   saveButtonLabel: {
-    fontWeight: '700',
+    fontWeight: '800',
     fontSize: 16,
+    color: '#fff',
   },
   cancelButton: {
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(255,255,255,0.15)',
   },
 });
