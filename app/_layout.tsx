@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { PaperProvider } from 'react-native-paper';
 import { lightTheme, darkTheme } from '../src/constants/theme';
@@ -9,15 +9,34 @@ import { LoanProvider } from '../src/context/LoanContext';
 import { useAuth } from '../src/context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 import { PreferencesProvider, usePreferences } from '../src/context/PreferencesContext';
+import * as SplashScreen from 'expo-splash-screen';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* reloading the app might cause this error. */
+});
 
 function AppContent() {
-  const { session, isLoading } = useAuth();
+  const { session, isLoading: authLoading } = useAuth();
   const { theme } = usePreferences();
+  const [appIsReady, setAppIsReady] = useState(false);
   const router = useRouter();
   const segments = useSegments();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!authLoading) {
+      setAppIsReady(true);
+    }
+  }, [authLoading]);
+
+  useEffect(() => {
+    if (appIsReady) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [appIsReady]);
+
+  useEffect(() => {
+    if (!appIsReady) return;
 
     const inAuthGroup = segments[0] === '(auth)';
     const inAppGroup = segments[0] === '(app)';
@@ -31,11 +50,11 @@ function AppContent() {
         router.replace('/(auth)/login');
       }
     }
-  }, [session?.user?.id, isLoading, segments[0]]);
+  }, [session?.user?.id, appIsReady, segments[0]]);
 
-  if (isLoading) {
+  if (!appIsReady) {
     return (
-      <View style={{ flex: 1, backgroundColor: theme === 'dark' ? '#1a1a2e' : '#f5f5f5', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: '#1a1a2e', justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#1DB954" />
       </View>
     );

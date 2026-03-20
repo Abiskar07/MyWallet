@@ -27,24 +27,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const router = useRouter();
 
   useEffect(() => {
+    let mounted = true;
+
     // Check for persisted session
     const checkSession = async () => {
+      // Safety timeout: If Supabase initialization hangs (e.g. missing keys or slow network),
+      // we stop waiting after 5 seconds to allow the app to show the login screen.
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Supabase initialization timed out')), 5000)
+      );
+
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const fetchPromise = supabase.auth.getSession();
+        const { data: { session }, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
         
-        if (error) {
-          console.error('Error checking session:', error.message);
-          setSession(null);
-        } else if (session) {
-          setSession(session);
-        } else {
-          setSession(null);
+        if (mounted) {
+          if (error) {
+            console.error('Error checking session:', error.message);
+            setSession(null);
+          } else if (session) {
+            setSession(session);
+          } else {
+            setSession(null);
+          }
         }
       } catch (err) {
-        console.error('Session check error:', err);
-        setSession(null);
+        console.error('Session check error or timeout:', err);
+        if (mounted) setSession(null);
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
@@ -53,10 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event);
-      setSession(session);
+      if (mounted) setSession(session);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

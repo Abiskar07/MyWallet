@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#1DB954"
       },
-      "package": "com.mywallet.app"
+      "package": "com.mywallet.app",
+      "allowBackup": false
     },
     "scheme": "mywallet",
     "plugins": [
@@ -43,7 +44,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "17abde32-4a95-42ba-9bce-29f60b998555"
+        "projectId": "064fbcda-c443-4b4c-8be9-208ab8ca4076"
       }
     },
     "splash": {
